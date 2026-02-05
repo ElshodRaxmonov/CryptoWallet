@@ -93,22 +93,23 @@ class WalletRepository @Inject constructor() {
         return try {
             Log.d("WalletRepository", "Fetching balance for address: $walletAddress")
 
-            // Re-fetch wallets to get the latest SDK wallet object
-            val wallets = getSdk().wallets.userWallets
-
-            val wallet = getSdk().wallets.userWallets.firstOrNull { it.chain.uppercase() == "EVM" }
-
-            if (wallet == null) {
-                return Result.failure(Exception("No EVM wallet found for balance check"))
+            // Get the EVM wallet
+            val wallet = getSdk().wallets.userWallets.firstOrNull { 
+                it.chain.uppercase() == "EVM" 
             }
 
-            // Use getBalance with a forced network sync if possible
+            if (wallet == null) {
+                Log.e("WalletRepository", "No EVM wallet found")
+                return Result.failure(Exception("No EVM wallet found. Please ensure you're authenticated and have an EVM wallet."))
+            }
+
+            // Fetch balance from the SDK
             val balance = getSdk().wallets.getBalance(wallet)
-            Log.d("WalletRepository", "Balance successfully converted: $balance ETH")
+            Log.d("WalletRepository", "Balance retrieved: $balance ETH")
             Result.success(balance)
         } catch (e: Exception) {
-            Log.e("WalletRepository", "Fatal error in getBalance", e)
-            Result.failure(e)
+            Log.e("WalletRepository", "Error fetching balance: ${e.message}", e)
+            Result.failure(Exception("Failed to fetch balance: ${e.message}", e))
         }
     }
 
@@ -120,35 +121,64 @@ class WalletRepository @Inject constructor() {
         amount: String
     ): Result<String> {
         return try {
-            val wallets = getSdk().wallets.userWallets
-            val wallet = wallets.firstOrNull {
+            val wallet = getSdk().wallets.userWallets.firstOrNull {
                 it.chain.uppercase() == "EVM"
-            } ?: return Result.failure(Exception("No EVM wallet found"))
+            }
 
-            Log.d("WalletRepository", "Sending transaction: from=${wallet.address}, to=$to, amount=$amount")
+            if (wallet == null) {
+                Log.e("WalletRepository", "No EVM wallet found")
+                return Result.failure(Exception("No EVM wallet found. Please ensure you're authenticated."))
+            }
 
+            Log.d("WalletRepository", "Preparing transaction: from=${wallet.address}, to=$to, amount=$amount ETH")
+
+            // Fetch current gas prices from the network
+            val gasPrice = try {
+                getSdk().evm.getGasPrice()
+            } catch (e: Exception) {
+                Log.w("WalletRepository", "Failed to fetch gas price, using fallback: ${e.message}")
+                // Use fallback gas prices if network call fails
+                null
+            }
+
+            // Build the transaction with proper gas parameters
             val transaction = EthereumTransaction(
                 from = wallet.address,
                 to = to,
                 value = convertEthToWei(amount),
-                gas = BigInteger.valueOf(21000)
-//                maxFeePerGas = maxFeePerGas,
-//                maxPriorityFeePerGas = maxPriorityFeePerGas
+                gas = BigInteger.valueOf(21000), // Standard gas limit for ETH transfer
+                maxFeePerGas = gasPrice?.maxFeePerGas,
+                maxPriorityFeePerGas = gasPrice?.maxPriorityFeePerGas
             )
 
-            // Dynamic SDK sendTransaction is often a suspend function
+            Log.d("WalletRepository", "Sending transaction with gas: maxFee=${gasPrice?.maxFeePerGas}, maxPriority=${gasPrice?.maxPriorityFeePerGas}")
+
+            // Send the transaction via Dynamic SDK
             val txHash = getSdk().evm.sendTransaction(transaction, wallet)
-            Log.d("WalletRepository", "Transaction successful. Hash: $txHash")
             
             if (txHash.isNullOrBlank()) {
-                return Result.failure(Exception("Transaction failed: No hash returned from SDK"))
+                Log.e("WalletRepository", "Transaction failed: No hash returned")
+                return Result.failure(Exception("Transaction failed: No transaction hash returned from the network"))
             }
             
+            Log.d("WalletRepository", "Transaction successful. Hash: $txHash")
             Result.success(txHash)
         } catch (e: Exception) {
-            Log.e("WalletRepository", "Transaction failed in repository", e)
-            // Handle "Job was cancelled" or other coroutine issues by wrapping it properly
-            Result.failure(e)
+            Log.e("WalletRepository", "Transaction failed: ${e.message}", e)
+            
+            // Provide more specific error messages based on the exception
+            val errorMessage = when {
+                e.message?.contains("insufficient", ignoreCase = true) == true -> 
+                    "Insufficient funds. Please check your balance and try again."
+                e.message?.contains("rejected", ignoreCase = true) == true -> 
+                    "Transaction rejected. Please try again."
+                e.message?.contains("network", ignoreCase = true) == true -> 
+                    "Network error. Please check your connection and try again."
+                else -> 
+                    "Transaction failed: ${e.message ?: "Unknown error"}"
+            }
+            
+            Result.failure(Exception(errorMessage, e))
         }
     }
 
