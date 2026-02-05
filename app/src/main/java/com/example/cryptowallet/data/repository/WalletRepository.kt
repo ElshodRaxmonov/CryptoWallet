@@ -151,7 +151,7 @@ class WalletRepository @Inject constructor() {
                 maxPriorityFeePerGas = gasPrice?.maxPriorityFeePerGas
             )
 
-            Log.d("WalletRepository", "Sending transaction with gas: maxFee=${gasPrice?.maxFeePerGas}, maxPriority=${gasPrice?.maxPriorityFeePerGas}")
+            Log.d("WalletRepository", "Sending transaction with gas: maxFee=${gasPrice?.maxFeePerGas} wei, maxPriority=${gasPrice?.maxPriorityFeePerGas} wei")
 
             // Send the transaction via Dynamic SDK
             val txHash = getSdk().evm.sendTransaction(transaction, wallet)
