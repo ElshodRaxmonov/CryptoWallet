@@ -1,21 +1,21 @@
 <resources>
     <string name="app_name">Crypto Wallet</string>
     
-    <!-- Login Screen -->
+
     <string name="login_title">Crypto Wallet</string>
     <string name="login_subtitle">Secure Web3 Authentication</string>
     <string name="email_hint">Email Address</string>
     <string name="send_otp_button">Send OTP</string>
     <string name="otp_info">We\'ll send a one-time password to your email for secure authentication</string>
     
-    <!-- OTP Dialog -->
+
     <string name="otp_dialog_title">Enter OTP Code</string>
     <string name="otp_dialog_message">Please enter the 6-digit code sent to your email</string>
     <string name="otp_code_hint">OTP Code</string>
     <string name="verify_button">Verify</string>
     <string name="cancel_button">Cancel</string>
 
-    <!-- Verify Email Screen -->
+
     <string name="verify_email_title">Verify Email</string>
     <string name="check_your_email">Check your email</string>
     <string name="verification_code_sent">We sent a verification code to</string>
@@ -23,7 +23,6 @@
     <string name="didnt_receive_code">Didn\'t receive the code?</string>
     <string name="resend_code">Resend Code</string>
 
-    <!-- Wallet Screen -->
     <string name="wallet_title">My Wallet</string>
     <string name="wallet_details_title">Wallet Details</string>
     <string name="total_balance">Total Balance</string>
@@ -38,7 +37,6 @@
     <string name="current_network_label">Current Network</string>
     <string name="balance_label">Balance</string>
 
-    <!-- Send Transaction Screen -->
     <string name="send_transaction_title">Send Transaction</string>
     <string name="recipient_address_hint">Recipient Address</string>
     <string name="amount_hint">Amount (ETH)</string>
@@ -46,20 +44,20 @@
     <string name="transaction_summary">Transaction Summary</string>
     <string name="network_info">Sending on Sepolia Testnet</string>
     
-    <!-- Success/Error Messages -->
+
     <string name="transaction_success">Transaction Sent!</string>
     <string name="transaction_success_message">Your transaction has been successfully submitted to the network.</string>
     <string name="transaction_hash">Transaction Hash:</string>
     <string name="copy_hash">Copy Hash</string>
     <string name="view_on_etherscan">View on Etherscan</string>
     
-    <!-- Error Messages -->
+
     <string name="error_invalid_email">Please enter a valid email</string>
     <string name="error_invalid_address">Invalid Ethereum address</string>
     <string name="error_invalid_amount">Invalid amount</string>
     <string name="error_failed_to_send">Failed to send transaction</string>
     
-    <!-- Logout Dialog -->
+
     <string name="logout_title">Logout</string>
     <string name="logout_message">Are you sure you want to logout?</string>
     <string name="logout_confirm">Logout</string>

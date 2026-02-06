@@ -54,7 +54,9 @@ fun VerifyScreen(
             onBackClick()
         },
         onVerifyClick = { viewModel.verifyOtp(it) },
-        onResendClick = { viewModel.sendOtp() }
+        onResendClick = {
+
+            viewModel.sendOtp(true) }
     )
 }
 
@@ -266,7 +268,7 @@ fun OtpBox(
 ) {
     Box(
         modifier = modifier
-            .size(45.dp) // Adjusted size for 6 digits
+            .size(45.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(Color.White)
             .border(

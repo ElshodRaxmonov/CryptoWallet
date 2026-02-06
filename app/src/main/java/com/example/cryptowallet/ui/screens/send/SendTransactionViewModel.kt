@@ -31,14 +31,14 @@ class SendTransactionViewModel @Inject constructor(
     }
     
     fun updateAmount(newAmount: String) {
-        // Only allow valid decimal numbers
+
         if (newAmount.isEmpty() || newAmount.matches(Regex("^\\d*\\.?\\d*$"))) {
             _amount.value = newAmount
         }
     }
     
     fun sendTransaction() {
-        // Validate inputs
+
         if (_recipientAddress.value.isBlank()) {
             _transactionState.value = TransactionState.Error("Please enter recipient address")
             return
@@ -59,7 +59,7 @@ class SendTransactionViewModel @Inject constructor(
             _transactionState.value = TransactionState.Error("Invalid amount")
             return
         }
-        
+
         viewModelScope.launch {
             _transactionState.value = TransactionState.Loading
             
@@ -79,19 +79,7 @@ class SendTransactionViewModel @Inject constructor(
         }
     }
     
-    fun resetTransactionState() {
-        _transactionState.value = TransactionState.Idle
-    }
-    
-    fun clearForm() {
-        _recipientAddress.value = ""
-        _amount.value = ""
-        _transactionState.value = TransactionState.Idle
-    }
-    
     private fun isValidEthereumAddress(address: String): Boolean {
-        // Basic Ethereum address validation
-        // Must start with 0x and be 42 characters long (0x + 40 hex characters)
         return address.matches(Regex("^0x[a-fA-F0-9]{40}$"))
     }
 }

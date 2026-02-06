@@ -1,284 +1,376 @@
 # 🚀 Crypto Wallet Android App
 
-A modern Android application demonstrating Web3 authentication and crypto wallet functionality using Dynamic SDK on Ethereum Sepolia testnet.
+A modern Android crypto wallet application built with Jetpack Compose, enabling users to authenticate via email OTP, view their wallet balance, and send ETH transactions on the Sepolia testnet using the Dynamic SDK.
+
+---
 
 ## 📱 Features
 
-- **Email OTP Authentication** via Dynamic SDK
-- **Wallet Details** - View address, network, and balance
+- **Email OTP Authentication** - Secure login via one-time password
+- **Wallet Management** - View wallet address, balance, and network info
 - **Send Transactions** - Transfer ETH on Sepolia testnet
 - **Modern UI** - Built with Jetpack Compose and Material Design 3
-- **MVVM Architecture** - Clean, testable, and maintainable code
+- **Real-time Updates** - StateFlow-based reactive architecture
+
+---
 
 ## 🏗️ Architecture
 
 ### MVVM Pattern
+
+The app follows the **Model-View-ViewModel (MVVM)** architecture pattern with clear separation of concerns:
+
 ```
-├── UI Layer (Compose)
-│   ├── LoginScreen
-│   ├── WalletDetailsScreen
-│   └── SendTransactionScreen
-├── ViewModel Layer
-│   ├── LoginViewModel
-│   ├── WalletViewModel
-│   └── SendTransactionViewModel
-├── Repository Layer
-│   └── WalletRepository
-└── Data Layer
-    └── Dynamic SDK Integration
+┌─────────────────────────────────────────────────┐
+│                   UI Layer                      │
+│  (Composables - LoginScreen, WalletScreen, etc)│
+└──────────────────┬──────────────────────────────┘
+                   │ observes StateFlow
+                   ▼
+┌─────────────────────────────────────────────────┐
+│               ViewModel Layer                   │
+│  (LoginViewModel, WalletViewModel, etc)         │
+│  - Business logic                               │
+│  - State management (StateFlow)                 │
+└──────────────────┬──────────────────────────────┘
+                   │ calls suspend functions
+                   ▼
+┌─────────────────────────────────────────────────┐
+│              Repository Layer                   │
+│         (WalletRepository)                      │
+│  - Data operations                              │
+│  - Dynamic SDK integration                      │
+└──────────────────┬──────────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────────┐
+│              Dynamic SDK                        │
+│  - Authentication                               │
+│  - Wallet operations                            │
+│  - Blockchain transactions                      │
+└─────────────────────────────────────────────────┘
 ```
 
-### Key Technologies
-- **Kotlin** - 100% Kotlin
-- **Jetpack Compose** - Modern declarative UI
-- **Coroutines & Flow** - Asynchronous operations
-- **StateFlow** - State management
-- **Hilt** - Dependency injection
-- **Dynamic SDK** - Web3 authentication and wallet operations
-- **Material Design 3** - Modern UI components
+### Key Components
 
-### Data Flow
-1. UI emits user actions to ViewModel
-2. ViewModel processes business logic and calls Repository
-3. Repository interacts with Dynamic SDK
-4. Results flow back through StateFlow to UI
+**1. UI Layer (Compose)**
+- `LoginScreen` - Email OTP authentication
+- `WalletScreen` - Display balance and wallet info
+- `SendTransactionScreen` - Transaction form
 
-## 🚀 Getting Started
+**2. ViewModel Layer**
+- Manages UI state with `StateFlow`
+- Handles user interactions
+- Coordinates with Repository
+
+**3. Repository Layer**
+- Single source of truth for data
+- Abstracts Dynamic SDK operations
+- Error handling and mapping
+
+**4. Dependency Injection**
+- Hilt for dependency management
+- `@Singleton` repository
+- `@HiltViewModel` for ViewModels
+
+---
+
+## 🚀 How to Run
 
 ### Prerequisites
-- Android Studio Hedgehog (2023.1.1) or newer
-- JDK 17
-- Android SDK API 34
-- Git
 
-### Setup Instructions
+- **Android Studio** Hedgehog (2023.1.1) or newer
+- **JDK 17**
+- **Android SDK** API Level 34 (Android 14)
+- **Dynamic SDK Account** (free at https://app.dynamic.xyz)
+
+### Setup Steps
 
 #### 1. Clone the Repository
+
 ```bash
 git clone <your-repo-url>
 cd CryptoWalletApp
 ```
 
-#### 2. Configure Dynamic SDK
+#### 2. Get Dynamic SDK Credentials
 
-1. **Create Dynamic Account**
-   - Go to https://app.dynamic.xyz
-   - Sign up for free
-   - Create a new project
-   - Copy your Environment ID
+1. Visit https://app.dynamic.xyz and sign up
+2. Create a new project
+3. Copy your **Environment ID** (format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+4. Enable **Email OTP** authentication in your Dynamic dashboard
 
-2. **Update Configuration**
-   - Open `local.properties`
-   - Add your Dynamic Environment ID:
-   ```properties
-   DYNAMIC_ENVIRONMENT_ID=your_environment_id_here
-   ```
+#### 3. Configure the App
 
-   Or update directly in `MainActivity.kt`:
-   ```kotlin
-   environmentId = "YOUR_ENVIRONMENT_ID"
-   ```
+**Option A: Using local.properties (Recommended - More Secure)**
 
-#### 3. Build and Run
-```bash
-./gradlew assembleDebug
+1. Open `local.properties` in the root directory
+2. Add your Dynamic Environment ID:
+
+```properties
+DYNAMIC_ENVIRONMENT_ID=your_environment_id_here
 ```
 
-Or use Android Studio:
-- Open project
-- Wait for Gradle sync
-- Run on emulator or device (API 26+)
+The app will automatically read this during build and inject it into `BuildConfig`.
 
-### Get Test Tokens (Sepolia ETH)
+**Option B: Direct in build.gradle.kts (Not Recommended)**
 
-After logging in, you'll need test ETH to send transactions:
+Only use this for testing. Open `app/build.gradle.kts` and modify:
 
-**Option A: Google Cloud Faucet** (Recommended)
+```kotlin
+buildConfigField("String", "DYNAMIC_ENVIRONMENT_ID", "\"your_id_here\"")
+```
+
+⚠️ **Security Note:** Never commit your Environment ID to Git. The `local.properties` file is already in `.gitignore`.
+
+#### 4. Build and Run
+
+**Using Android Studio:**
+1. Open the project
+2. Wait for Gradle sync to complete
+3. Click Run ▶️
+4. Select your device/emulator (API 26+)
+
+**Using Command Line:**
+```bash
+./gradlew assembleDebug
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+#### 5. Get Test ETH (Sepolia)
+
+To send transactions, you need Sepolia testnet ETH:
+
+**Option A: Google Cloud Faucet (Recommended)**
 1. Visit https://cloud.google.com/application/web3/faucet/ethereum/sepolia
-2. Sign in with Google
-3. Paste your wallet address
-4. Receive 0.05 SepoliaETH instantly
+2. Paste your wallet address
+3. Receive 0.05 SepoliaETH instantly
 
 **Option B: Alchemy Faucet**
 1. Visit https://www.alchemy.com/faucets/ethereum-sepolia
-2. Sign in
-3. Paste wallet address
-4. Get 0.5 SepoliaETH
+2. Sign in and request tokens
 
 **Verify Balance:**
 Check on Etherscan: `https://sepolia.etherscan.io/address/YOUR_ADDRESS`
 
+---
+
 ## 📸 Screenshots
 
-### Login Screen
+### 1. Login Screen
+```
+┌────────────────────────────────┐
+│    Crypto Wallet               │
+│                                 │
+│  ┌──────────────────────────┐  │
+│  │  Email                    │  │
+│  │  user@example.com        │  │
+│  └──────────────────────────┘  │
+│                                 │
+│  [    Send OTP Code    ]       │
+│                                 │
+│  ┌──────────────────────────┐  │
+│  │  Enter OTP                │  │
+│  │  123456                   │  │
+│  └──────────────────────────┘  │
+│                                 │
+│  [      Verify      ]          │
+│                                 │
+└────────────────────────────────┘
+```
+
+**Features:**
 - Email input field
-- Send OTP button
-- OTP verification dialog
-- Error handling with user-friendly messages
-
-### Wallet Details Screen
-- Wallet address display with copy button
-- Current network indicator (Sepolia)
-- ETH balance display
-- Send Transaction navigation
-- Logout functionality
-
-### Send Transaction Screen
-- Recipient address input
-- Amount input (ETH)
-- Transaction confirmation
-- Loading states during submission
-- Success with transaction hash
-- Error handling
-
-## 🛠️ Project Structure
-
-```
-app/src/main/java/com/example/cryptowallet/
-├── data/
-│   ├── model/
-│   │   ├── AuthState.kt
-│   │   ├── WalletState.kt
-│   │   └── TransactionState.kt
-│   └── repository/
-│       └── WalletRepository.kt
-├── di/
-│   └── AppModule.kt
-├── ui/
-│   ├── components/
-│   │   ├── LoadingButton.kt
-│   │   ├── WalletCard.kt
-│   │   └── TransactionStatusDialog.kt
-│   ├── screens/
-│   │   ├── login/
-│   │   │   ├── LoginScreen.kt
-│   │   │   └── LoginViewModel.kt
-│   │   ├── wallet/
-│   │   │   ├── WalletDetailsScreen.kt
-│   │   │   └── WalletViewModel.kt
-│   │   └── send/
-│   │       ├── SendTransactionScreen.kt
-│   │       └── SendTransactionViewModel.kt
-│   ├── navigation/
-│   │   └── NavGraph.kt
-│   └── theme/
-│       ├── Color.kt
-│       ├── Theme.kt
-│       └── Type.kt
-└── MainActivity.kt
-```
-
-## 🔧 Configuration
-
-### Network Settings
-- **Network:** Ethereum Sepolia Testnet
-- **Chain ID:** 11155111
-- **RPC URL:** Automatic via Dynamic SDK
-- **Block Explorer:** https://sepolia.etherscan.io
-
-### Dynamic SDK Configuration
-```kotlin
-ClientProps(
-    environmentId = "YOUR_ENV_ID",
-    appName = "Crypto Wallet Test",
-    redirectUrl = "dynamictest://",
-    appOrigin = "https://test.app",
-    logLevel = LoggerLevel.DEBUG
-)
-```
-
-## 🧪 Testing
-
-### Manual Testing Checklist
-- [ ] Email OTP sends successfully
-- [ ] OTP verification works
-- [ ] Wallet address displays correctly
-- [ ] Balance loads from Sepolia
-- [ ] Copy address to clipboard
-- [ ] Send transaction with valid inputs
-- [ ] Error handling for invalid inputs
-- [ ] Logout clears session
-- [ ] Network status shows "Sepolia"
-
-### Test Accounts
-Use any valid email for OTP testing. No pre-registration needed.
-
-## ⚠️ Known Limitations & Assumptions
-
-### Assumptions
-1. **Single EVM Wallet** - App assumes user has one EVM wallet
-2. **Sepolia Network** - Hardcoded to Sepolia testnet (Chain ID: 11155111)
-3. **Standard Gas** - Uses fixed gas limit of 21,000 for ETH transfers
-4. **Email OTP Only** - Only email authentication implemented (no social logins)
-
-### Limitations
-1. **No Transaction History** - Doesn't display past transactions
-2. **No Token Support** - ETH only, no ERC-20 tokens
-3. **Basic Validation** - Address validation could be more robust
-4. **No Offline Mode** - Requires internet connection
-5. **No Gas Estimation** - Uses default gas values
-
-### Security Notes
-- Never commit `local.properties` with real API keys
-- This is a test app - not production-ready
-- Private keys managed entirely by Dynamic SDK
-- Always verify transaction details before sending
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**"SDK not initialized"**
-- Ensure `DynamicSDK.initialize()` is called in `MainActivity.onCreate()`
-- Check Environment ID is correct
-
-**"No balance showing"**
-- Verify you're on Sepolia testnet
-- Get test ETH from faucets
-- Wait 1-2 minutes for balance to update
-
-**"Transaction failed"**
-- Ensure sufficient balance (amount + gas)
-- Check recipient address is valid
-- Verify you have test ETH
-
-**Build errors**
-- Clean and rebuild: `./gradlew clean build`
-- Invalidate caches in Android Studio
-- Check Gradle sync completed successfully
-
-## 📚 Resources
-
-- [Dynamic SDK Documentation](https://github.com/dynamic-labs/android-sdk-and-sample-app)
-- [Jetpack Compose](https://developer.android.com/jetpack/compose)
-- [Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)
-- [Sepolia Testnet](https://sepolia.dev/)
-- [Etherscan Sepolia](https://sepolia.etherscan.io/)
-
-## 🤝 Contributing
-
-This is a test assignment submission. For improvements or issues:
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
-
-## 📄 License
-
-This project is created as a test assignment and is provided as-is for evaluation purposes.
-
-## 👤 Author
-
-[Your Name]
-- Email: [Your Email]
-- GitHub: [Your GitHub]
-
-## 🙏 Acknowledgments
-
-- Dynamic Labs for the excellent Web3 SDK
-- Ethereum Foundation for Sepolia testnet
-- Material Design team for design guidelines
+- OTP code verification
+- Loading states during authentication
 
 ---
 
-**Time Spent:** ~4 days
-**Last Updated:** February 2026
+### 2. Wallet Screen
+```
+┌────────────────────────────────┐
+│  My Wallet          [Logout]   │
+├────────────────────────────────┤
+│                                 │
+│  ┌──────────────────────────┐  │
+│  │   Total Balance          │  │
+│  │                          │  │
+│  │      0.05 ETH            │  │
+│  │   (Large, Bold)          │  │
+│  └──────────────────────────┘  │
+│                                 │
+│  ┌──────────────────────────┐  │
+│  │  ☁️  Network             │  │
+│  │     Sepolia              │  │
+│  │     Chain ID: 11155111   │  │
+│  └──────────────────────────┘  │
+│                                 │
+│  ┌──────────────────────────┐  │
+│  │  📍 Address              │  │
+│  │  0xaF...5ee  [Copy] 📋   │  │
+│  └──────────────────────────┘  │
+│                                 │
+│  [   Send Transaction   ]      │
+│                                 │
+└────────────────────────────────┘
+```
+
+**Features:**
+- Real-time balance display
+- Network information (Sepolia, Chain ID)
+- Wallet address with copy functionality
+- Pull-to-refresh balance
+- Logout button
+
+---
+
+### 3. Send Transaction Screen
+```
+┌────────────────────────────────┐
+│  ← Send Transaction            │
+├────────────────────────────────┤
+│                                 │
+│  ┌──────────────────────────┐  │
+│  │  Recipient Address        │  │
+│  │  0x742d35Cc6634C0...     │  │
+│  └──────────────────────────┘  │
+│                                 │
+│  ┌──────────────────────────┐  │
+│  │  Amount (ETH)             │  │
+│  │  0.001                    │  │
+│  └──────────────────────────┘  │
+│                                 │
+│  [   Send Transaction   ]      │
+│                                 │
+│  ───── Success ─────           │
+│                                 │
+│  ✅ Transaction Sent!           │
+│                                 │
+│  Transaction Hash:              │
+│  0x1a2b3c4d... [Copy]          │
+│                                 │
+│  [View on Etherscan]           │
+│                                 │
+└────────────────────────────────┘
+```
+
+**Features:**
+- Recipient address input (validates 0x format)
+- Amount input (decimal supported)
+- Transaction status (Loading, Success, Error)
+- Transaction hash display
+- Copy hash to clipboard
+- Direct link to Etherscan
+
+---
+
+## ⚙️ Tech Stack
+
+- **Language:** Kotlin
+- **UI:** Jetpack Compose
+- **Architecture:** MVVM
+- **DI:** Hilt
+- **Async:** Coroutines + Flow
+- **Navigation:** Compose Navigation
+- **Blockchain SDK:** Dynamic SDK
+- **Network:** Sepolia Testnet (Chain ID: 11155111)
+
+---
+
+## 🔐 Assumptions
+
+### 1. Network Configuration
+- **Hardcoded to Sepolia testnet** (Chain ID: 11155111)
+- No network switching functionality
+- Assumes users want to test on Sepolia only
+
+### 2. Wallet Management
+- **Single EVM wallet** per user
+- App assumes first EVM wallet from Dynamic SDK
+- No multi-wallet support
+
+### 3. Transaction Gas Settings
+- **Fixed gas limit:** 21,000 (standard ETH transfer)
+- **Gas price:** Fetched dynamically from network
+- **EIP-1559 fees:** maxFeePerGas = 2x current gas price
+
+### 4. Dynamic SDK Integration
+- **DynamicUI() component required** - Must be present in MainActivity for transaction signing
+- **Embedded wallets** use WebView for user approval
+- **120-second timeout** for transaction signing
+
+### 5. Authentication
+- **Email OTP only** - No social login options
+- Session managed entirely by Dynamic SDK
+- No offline mode
+
+### 6. Error Handling
+- Basic error messages displayed to user
+- Network errors shown as generic messages
+- No retry logic for failed operations
+
+### 7. Transaction Limits
+- No minimum/maximum amount validation
+- Assumes user has sufficient balance (checked by network)
+- No transaction history tracking
+
+### 8. UI/UX
+- Loading states show spinner only
+- No skeleton screens or shimmer effects
+- Success/error states timeout after display
+
+---
+
+## 📝 Known Limitations
+
+1. **No Transaction History** - Only current balance is shown
+2. **ETH Only** - No ERC-20 token support
+3. **No Offline Mode** - Requires active internet connection
+4. **Basic Validation** - Address validation could be more robust
+5. **No Custom Gas** - Users cannot set custom gas prices
+6. **Single Network** - Only Sepolia testnet supported
+
+---
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+**"Transaction hangs/times out"**
+- Ensure `DynamicUI()` component is present in MainActivity
+- Check that Activity context was passed to `DynamicSDK.initialize()`
+- Verify you approved the transaction in the popup
+
+**"No balance showing"**
+- Verify you're on Sepolia testnet
+- Get test ETH from faucets (see "Get Test ETH" section)
+- Check wallet address on Etherscan
+
+**"Transaction failed"**
+- Ensure sufficient balance (amount + gas fees)
+- Verify recipient address is valid (42 characters, starts with 0x)
+- Check network connection
+
+**"OTP not arriving"**
+- Check spam folder
+- Verify email is correct
+- Try different email provider
+- Check Dynamic dashboard for auth logs
+
+---
+
+## 📄 License
+
+MIT License - See [LICENSE](LICENSE) file for details
+
+---
+
+## 🙏 Acknowledgments
+
+- **Dynamic Labs** - For the embedded wallet SDK
+- **Ethereum Foundation** - For Sepolia testnet
+- **Google** - For Jetpack Compose framework
+
+---
+
+**Built with ❤️ using Kotlin and Jetpack Compose**

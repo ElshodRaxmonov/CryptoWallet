@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("com.google.dagger.hilt.android")
@@ -21,6 +23,17 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        
+        // Read Dynamic Environment ID from local.properties
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+        
+        // Add to BuildConfig - use empty string as fallback for CI/CD environments
+        val dynamicEnvId = localProperties.getProperty("DYNAMIC_ENVIRONMENT_ID", "")
+        buildConfigField("String", "DYNAMIC_ENVIRONMENT_ID", "\"$dynamicEnvId\"")
     }
 
     buildTypes {

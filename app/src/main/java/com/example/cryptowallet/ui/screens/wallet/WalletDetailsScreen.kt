@@ -182,7 +182,8 @@ fun WalletDetailsScreenContent(
                 TextButton(onClick = { showLogoutDialog = false }) {
                     Text(stringResource(R.string.cancel_button))
                 }
-            }
+            },
+            containerColor = Color.White
         )
     }
 }
@@ -349,4 +350,31 @@ fun WalletDetailsScreenPreview() {
             logout = {}
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WalletDetailScreenPreview() {
+    var showLogoutDialog = true
+    AlertDialog(
+        onDismissRequest = { showLogoutDialog = false },
+        title = { Text(stringResource(R.string.logout_title)) },
+        text = { Text(stringResource(R.string.logout_message)) },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    showLogoutDialog = false
+//                    logout(onLogout)
+                }
+            ) {
+                Text(stringResource(R.string.logout_confirm), color = Color(0xFFD93025))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { showLogoutDialog = false }) {
+                Text(stringResource(R.string.cancel_button))
+            }
+        },
+        containerColor = Color.White
+    )
 }

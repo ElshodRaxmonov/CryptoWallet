@@ -66,11 +66,10 @@ fun LoginScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 32.dp),
+                .padding(top = 64.dp, end = 32.dp, start = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
-            // App Logo
+
             Image(
                 painter = painterResource(id = R.drawable.main_logo),
                 contentDescription = "App Logo",
@@ -101,7 +100,6 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Email Input
             TextField(
                 value = email,
                 onValueChange = updateEmail,
@@ -143,7 +141,7 @@ fun LoginScreenContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Send OTP Button
+
             Button(
                 onClick = { sendOtp() },
                 modifier = Modifier
@@ -177,7 +175,6 @@ fun LoginScreenContent(
                 }
             }
 
-            // Error Message
             if (authState is AuthState.Error) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
